@@ -110,9 +110,6 @@ const User = () => {
             <Button color="primary" onClick={mostrarModalInsertar}>
               Crear
             </Button>
-            <Button outline color="secondary" block>
-              Cerrar sesión
-            </Button>
           </div>
         </Col>
       </Row>
@@ -139,6 +136,7 @@ const User = () => {
                 <td>{dato.rol}</td>
                 <td>
                   <Button
+                  outline
                     color="primary"
                     id={dato._id}
                     onClick={mostrarModalActualizar}
