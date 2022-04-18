@@ -14,40 +14,22 @@ import {
   Row,
   Col,
 } from "reactstrap";
-
+import { useNavigate } from "react-router";
 
 //Data temporal, luego traerla de DB
-const data = [
-  {
-    _id: "21354646",
-    nombre: "Andrés Garzón",
-    cedula: "12315678",
-    telefono: "1123312879",
-    estado: "Activo",
-    rol: "Tutor",
-  },
-  {
-    _id: "21354647",
-    nombre: "Jaime Perez",
-    cedula: "124154",
-    telefono: "567756",
-    estado: "Activo",
-    rol: "Estudiante",
-  },{
-    _id: "21354648",
-    nombre: "Julian Ospina",
-    cedula: "123123",
-    telefono: "967654654",
-    estado: "Activo",
-    rol: "Estudiante",
-  },
-];
+const data = [];
+
+const BASE_URL = "http://localhost:4000/";
+// const BASE_URL = process.env.REACT_APP_API_URL;
+const PATH_USUARIOS = "usuarios";
 
 const User = () => {
   const [modalActualizar, setModalActualizar] = React.useState(false);
   const [modalInsertar, setModalInsertar] = React.useState(false);
+  const [isLoaded, setIsLoaded] = React.useState(false);
   const [errors, setErrors] = React.useState(null);
   const [newVal, setNewVal] = React.useState(0);
+  const navigate = useNavigate();
 
   const [usuario, setUsuario] = React.useState({
     data: data,
@@ -59,6 +41,30 @@ const User = () => {
       rol: "",
     },
   });
+
+  React.useEffect(() => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    fetch(`${BASE_URL}${PATH_USUARIOS}`, requestOptions)
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          setIsLoaded(true);
+          setUsuario({
+            ...usuario,
+            data: result,
+          });
+        },
+        (error) => {
+          setIsLoaded(true);
+          setErrors(error);
+        }
+      );
+  }, [newVal]);
 
   const handleChange = (e) => {
     setUsuario((prevState) => ({
@@ -95,6 +101,91 @@ const User = () => {
 
   const cerrarModalInsertar = () => {
     setModalInsertar(false);
+  };
+
+  const editar = () => {
+    let usuarioAModificar = { ...usuario.form };
+    actualizarUsuario(usuarioAModificar);
+    setModalActualizar(false);
+  };
+
+  const eliminar = (e) => {
+    let arregloUsuario = usuario.data;
+    arregloUsuario.map((registro) => {
+      if (e.target.id === registro._id) {
+        let opcion = window.confirm(
+          "¿Está seguro que desea eliminar el usuario " + registro.nombre + "?"
+        );
+        if (opcion) {
+          borrarUsuario(registro._id);
+        }
+      }
+    });
+  };
+
+  const insertar = () => {
+    let usuarioACrear = { ...usuario.form };
+    crearUsuario(usuarioACrear);
+    setModalInsertar(false);
+  };
+
+  const crearUsuario = (usuarioACrear) => {
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(usuarioACrear),
+    };
+    fetch(`${BASE_URL}${PATH_USUARIOS}`, requestOptions).then(
+      (response) => {
+        response.json();
+        setNewVal(newVal + 1);
+      },
+      (error) => {
+        setIsLoaded(true);
+        setErrors(error);
+      }
+    );
+  };
+
+  const borrarUsuario = (id) => {
+    const requestOptions = {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    fetch(`${BASE_URL}${PATH_USUARIOS}/${id}`, requestOptions)
+      .then((result) => result.json())
+      .then(
+        (result) => {
+          setNewVal(newVal + 1);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+  };
+
+  const actualizarUsuario = (usuario) => {
+    const requestOptions = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(usuario),
+    };
+    fetch(`${BASE_URL}${PATH_USUARIOS}/${usuario._id}`, requestOptions)
+      .then((result) => result.json())
+      .then(
+        (result) => {
+          setNewVal(newVal + 1);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
   };
 
   return (
@@ -136,14 +227,14 @@ const User = () => {
                 <td>{dato.rol}</td>
                 <td>
                   <Button
-                  outline
+                    outline
                     color="primary"
                     id={dato._id}
                     onClick={mostrarModalActualizar}
                   >
                     Editar
                   </Button>{" "}
-                  <Button color="danger" id={dato._id}>
+                  <Button color="danger" id={dato._id} onClick={eliminar}>
                     Eliminar
                   </Button>
                 </td>
@@ -229,7 +320,7 @@ const User = () => {
         </ModalBody>
 
         <ModalFooter>
-          <Button color="primary">
+          <Button color="primary" onClick={editar}>
             Actualizar
           </Button>
           <Button className="btn btn-danger" onClick={cerrarModalActualizar}>
@@ -299,7 +390,7 @@ const User = () => {
         </ModalBody>
 
         <ModalFooter>
-          <Button color="primary">
+          <Button color="primary" onClick={insertar}>
             Crear
           </Button>
           <Button className="btn btn-danger" onClick={cerrarModalInsertar}>
