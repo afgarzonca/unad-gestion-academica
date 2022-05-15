@@ -7,6 +7,7 @@ var logger = require("morgan");
 var dotenv = require("dotenv");
 var conectarBD = require("./db/db.js");
 var http = require("http");
+var cors = require('cors');
 
 dotenv.config(); //para que nos deje usar dotenv (variables de entorno) en toda la aplicación
 
@@ -14,6 +15,7 @@ const app = express();
 
 var port = normalizePort(process.env.PORT || "4000");
 app.set("port", port);
+app.use(cors());
 
 var server = http.createServer(app);
 
@@ -28,6 +30,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use(cors());
+
+app.use('/login', (req, res) => {
+  res.send({
+    token: 'test123'
+  });
+});
 
 app.use("/usuarios", UsuarioController);
 

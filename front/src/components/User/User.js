@@ -6,6 +6,9 @@ import {
   Table,
   Button,
   Container,
+  FormFeedback,
+  Input,
+  Label,
   Modal,
   ModalHeader,
   ModalBody,
@@ -125,8 +128,15 @@ const User = () => {
 
   const insertar = () => {
     let usuarioACrear = { ...usuario.form };
-    crearUsuario(usuarioACrear);
-    setModalInsertar(false);
+    let name = usuario.form.nombre;
+    let error = "";
+
+    if (!name.value) {
+      error = `${name} field cannot be empty`;
+    }
+
+    // crearUsuario(usuarioACrear);
+    // setModalInsertar(false);
   };
 
   const crearUsuario = (usuarioACrear) => {
@@ -187,6 +197,8 @@ const User = () => {
         }
       );
   };
+
+  
 
   return (
     <Container>
@@ -338,14 +350,16 @@ const User = () => {
 
         <ModalBody>
           <FormGroup>
-            <label>Nombre:</label>
-            <input
+            <Label for="input-name">Nombre:</Label>
+            <Input
+              id="input-name"
               className="form-control"
               name="nombre"
               type="text"
               onChange={handleChange}
-              required
+              invalid
             />
+            <FormFeedback>Oh noes! that name is already taken</FormFeedback>
           </FormGroup>
 
           <FormGroup>
