@@ -11,67 +11,94 @@ import {
   Col,
   Container,
 } from "reactstrap";
+import useToken from "../App/useToken";
 
 async function loginUser(credentials) {
-  return fetch('http://localhost:4000/login', {
-    method: 'POST',
+  return fetch("http://localhost:4000/login", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(credentials)
-  })
-    .then(data => data.json())
- }
+    body: JSON.stringify(credentials),
+  }).then((data) => data.json());
+}
 
-export default function Login ({setToken}) {
+export default function Login({ setToken }) {
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const token = await loginUser({
       username,
-      password
+      password,
     });
     setToken(token);
+  };
+
+  const closeSession = async (e) => {
+    e.preventDefault();
+    sessionStorage.clear();
+    window.location.reload(false);
+  };
+
+  const { token } = useToken();
+
+  if (token) {
+    return (
+      <div className={styles.Login}>
+        <Form className="mt-5" onSubmit={closeSession}>
+          <Container>
+            <Row form className="justify-content-md-center">
+              <Col md={{ size: 6, offset: 3 }}>
+                <Button color="danger">Cerrar sesión</Button>
+                {/* <Button color="success">Ingresar</Button>{' '} */}
+              </Col>
+            </Row>
+          </Container>
+        </Form>
+      </div>
+    );
   }
 
-  return <div className={styles.Login}>
-    <Form className="mt-5" onSubmit={handleSubmit}>
-      <Container>
-        <Row form className="justify-content-md-center">
-          <Col md={{ size: 6, offset: 3}}>
-            <FormGroup>
-              <Label for="input-email">Email</Label>
-              <Input
-                id="input-email"
-                name="email"
-                placeholder="Ingrese su Email"
-                type="email"
-                onChange={e => setUserName(e.target.value)}
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label for="input-password">Password</Label>
-              <Input
-                id="input-password"
-                name="password"
-                placeholder="Ingrese su password "
-                type="password"
-                onChange={e => setPassword(e.target.value)}
-              />
-            </FormGroup>
-            <Button color="success">Ingresar</Button>
-            {/* <Button color="success">Ingresar</Button>{' '} */}
-          </Col>
-        </Row>
-      </Container>
-    </Form>
-  </div>
-};
+  return (
+    <div className={styles.Login}>
+      <Form className="mt-5" onSubmit={handleSubmit}>
+        <Container>
+          <Row form className="justify-content-md-center">
+            <Col md={{ size: 6, offset: 3 }}>
+              <FormGroup>
+                <Label for="input-email">Email</Label>
+                <Input
+                  id="input-email"
+                  name="email"
+                  placeholder="Ingrese su Email"
+                  type="email"
+                  onChange={(e) => setUserName(e.target.value)}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label for="input-password">Password</Label>
+                <Input
+                  id="input-password"
+                  name="password"
+                  placeholder="Ingrese su password "
+                  type="password"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </FormGroup>
+              <Button color="success">Ingresar</Button>
+              {/* <Button color="success">Ingresar</Button>{' '} */}
+            </Col>
+          </Row>
+        </Container>
+      </Form>
+    </div>
+  );
+}
 
 Login.propTypes = {
-  setToken: PropTypes.func.isRequired
+  setToken: PropTypes.func,
 };
 
 Login.defaultProps = {};

@@ -34,7 +34,7 @@ const Menu = (props) => {
               <DropdownToggle nav caret>
                 Perfil
               </DropdownToggle>
-              <DropdownMenu right>
+              <DropdownMenu>
                 <DropdownItem>Perfil</DropdownItem>
                 <DropdownItem>Opciones</DropdownItem>
                 <DropdownItem divider />
